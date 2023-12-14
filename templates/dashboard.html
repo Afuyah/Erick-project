@@ -1,0 +1,36 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ user_info['Name'] }}!</h1>
+
+    <h2>User Information</h2>
+    <p>Email: {{ user_info['Email'] }}</p>
+
+    <h2>Orders</h2>
+    {% if user_info['Orders'] %}
+        <ul>
+            {% for order in user_info['Orders'] %}
+                <li>Order ID: {{ order.id }}, Status: {{ order.status }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No orders yet.</p>
+    {% endif %}
+
+    <h2>Notifications</h2>
+    {% if user_info['Notifications'] %}
+        <ul>
+            {% for notification in user_info['Notifications'] %}
+                <li>{{ notification }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No notifications.</p>
+    {% endif %}
+</body>
+</html>

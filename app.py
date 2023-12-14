@@ -1,8 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_mail import Mail, Message
 from forms import RegistrationForm
+from email_validator import validate_email, EmailNotValidError
+from sqlalchemy import func
+import os
+import secrets
+import smtplib
 
 
 
@@ -81,7 +86,9 @@ with app.app_context():
 @app.route('/')
 def home():
     return render_template('home.html')
+  
 # Route for user registration
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
@@ -91,6 +98,14 @@ def register():
         existing_user = Customer.query.filter_by(email=form.email.data).first()
         if existing_user:
             flash('Email already registered. Please use a different email.', 'error')
+            return redirect(url_for('register'))
+
+        # Validate email using email-validator
+        try:
+            v = validate_email(form.email.data)
+            form.email.data = v.email
+        except EmailNotValidError as e:
+            flash(f'Invalid email: {e}', 'error')
             return redirect(url_for('register'))
 
         # Create a new user
@@ -110,19 +125,25 @@ def register():
 
     return render_template('register.html', form=form)
 
-# Route for login
+
+  # Route for login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        user = Customer.query.filter_by(email=email).first()
-        if user and user.password == password:
-            login_user(user)
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Invalid email or password. Please try again.', 'error')
-    return render_template('login.html')
+      if request.method == 'POST':
+          email = request.form.get('email')
+          password = request.form.get('password')
+          user = Customer.query.filter_by(email=email).first()
+          if user and user.password == password:
+              login_user(user)
+
+              # Check if the user is an admin
+              if user.is_admin:
+                  return redirect(url_for('admin_dashboard'))
+              else:
+                  return redirect(url_for('dashboard'))
+          else:
+              flash('Invalid email or password. Please try again.', 'error')
+      return render_template('login.html')
 
 # Route for dashboard
 @app.route('/admin_dashboard')
@@ -130,6 +151,15 @@ def login():
 def dashboard():
     return f'Hello, {current_user.name}! You are logged in.'
 
+def dashboard():
+    user_info = {
+        'Name': current_user.name,
+        'Email': current_user.email,
+        'Orders': current_user.orders,
+        'Notifications': []  # Placeholder for notifications; you can customize this based on your needs
+    }
+
+    return render_template('dashboard.html', user_info=user_info)
 # Route to add admin user (you may want to secure this route in a production environment)
 @app.route('/add_admin')
 def add_admin():
@@ -214,7 +244,60 @@ def confirm_order(order_id):
         flash('You do not have permission to confirm orders.', 'error')
 
     return redirect(url_for('admin_dashboard'))  # Adjust the route name as needed
+    # Route to display all users
+@app.route('/all_users')
+def all_users():
+    all_users_data = Customer.query.all()
+    return render_template('all_users.html', all_users=all_users_data)
+# Route to display all locations
+@app.route('/all_locations')
+def all_locations():
+    all_locations_data = Location.query.all()
+    return render_template('all_locations.html', all_locations=all_locations_data)
 
-# ...
+
+  # Route to display all products with their categories and prices
+@app.route('/all_products')
+def all_products():
+      with current_app.app_context():
+          all_products_data = Product.query.join(Category).with_entities(
+              Product.name.label('product_name'),
+              Category.name.label('category_name'),
+              Product.price
+          ).all()
+
+      return render_template('all_products.html', all_products=all_products_data)
+
+
+
+# Route to display all orders with detailed information including customer name, location, order items, and prices
+@app.route('/all_orders_info')
+def all_orders_info():
+    all_orders_data = Order.query.join(Customer).join(Location).join(CartItem).join(Product).with_entities(
+        Order.id.label('order_id'),
+        Customer.name.label('customer_name'),
+        Location.name.label('location_name'),
+        CartItem.quantity.label('item_quantity'),
+        Product.name.label('product_name'),
+        Product.price.label('product_price')
+    ).all()
+
+    return render_template('all_orders_info.html', all_orders_info=all_orders_data)
+
+
+
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=81)
+
+
+
+
+
+
+
+
+
+
+
