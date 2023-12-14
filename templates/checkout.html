@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'navbar.html' %}
+    <!-- Other head elements here -->
+</head>
+<body>
+    <h1>Checkout</h1>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <form method="post" action="{{ url_for('checkout') }}">
+        <!-- Add form fields for checkout, including location selection -->
+        <label for="location">Select Delivery Location:</label>
+        <select name="location" required>
+            {% for location in locations %}
+                <option value="{{ location.id }}">{{ location.name }}</option>
+            {% endfor %}
+        </select><br>
+        <button type="submit">Place Order</button>
+    </form>
+</body>
+</html>
