@@ -1,12 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    {% include 'navbar.html' %}
-    <!-- Other head elements here -->
-</head>
-<body>
-    <h1>Welcome To Naurisha</h1>
-    <p><a href="{{ url_for('login') }}">Login</a> to start shopping!</p>
-   <p><a href="{{ url_for('register') }}">Login</a> to start shopping!</p>
-</body>
-</html>
+{% include 'navbar.html' %}
+
+<!-- Content of the Home Page -->
+<div class="container mt-4">
+    <h1 class="display-4">Welcome to  Naurisha </h1>
+    <p class="lead">Explore our wide range of products...</p>
+</div>
+
+<!-- Login Modal -->
+{% include 'login_modal.html' %}
+
+{% include 'contact_modal.html' %}
