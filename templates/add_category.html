@@ -1,0 +1,22 @@
+{% include 'navbar.html' %}
+
+
+
+{% block content %}
+  <div class="container">
+    <h2 class="mt-5">Add Category</h2>
+    <form method="POST" action="{{ url_for('add_category') }}" class="mt-4" id="addCategoryForm">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.category_name.label(class="form-label") }}
+        {{ form.category_name(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.submit(class="btn btn-primary") }}
+      </div>
+    </form>
+  </div>
+  <script>
+    // Add any additional JavaScript logic here if needed
+  </script>
+{% endblock %}
