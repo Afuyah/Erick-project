@@ -1,48 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Products</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
+{% include 'navbar.html' %}
+{% include 'sidebar.html' %}
 
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
+<div class="container-fluid mt-5">
+    <h2 class="mb-4">All Products</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th class="d-none d-md-table-cell">Old Price</th>
+                    <th>New Price</th>
+                    <th>Category</th>
+                    <th>Cover Image</th>
+                    <th class="d-none d-md-table-cell">Image 1</th>
+                    <th class="d-none d-md-table-cell">Image 2</th>
+                    <th class="d-none d-md-table-cell">Image 3</th>
+                    <th class="d-none d-md-table-cell">Image 4</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in all_products %}
+                    <tr>
+                        <td>{{ product.product_id }}</td>
+                        <td>{{ product.product_name }}</td>
+                        <td>{{ product.product_description }}</td>
+                        <td class="d-none d-md-table-cell">{{ product.old_price }}</td>
+                        <td>{{ product.new_price }}</td>
+                        <td>{{ product.category_name }}</td>
+                        <td><img src="{{ url_for('static', filename='uploads/' + product.cover_image) }}" alt="Cover Image" class="img-thumbnail"></td>
+                        <td class="d-none d-md-table-cell"><img src="{{ url_for('static', filename='uploads/' + product.image1) }}" alt="Image 1" class="img-thumbnail"></td>
+                        <td class="d-none d-md-table-cell"><img src="{{ url_for('static', filename='uploads/' + product.image2) }}" alt="Image 2" class="img-thumbnail"></td>
+                        <td class="d-none d-md-table-cell"><img src="{{ url_for('static', filename='uploads/' + product.image3) }}" alt="Image 3" class="img-thumbnail"></td>
+                        <td class="d-none d-md-table-cell"><img src="{{ url_for('static', filename='uploads/' + product.image4) }}" alt="Image 4" class="img-thumbnail"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
-<body>
-
-  <h1>All Products</h1>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Product Name</th>
-        <th>Category</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for product in all_products %}
-        <tr>
-          <td>{{ product.product_name }}</td>
-          <td>{{ product.category_name }}</td>
-          <td>${{ product.price }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-</body>
-</html>

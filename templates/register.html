@@ -1,71 +1,76 @@
 {% include 'navbar.html' %}
+{% include 'login_modal.html' %}
 
-    <div class="container mt-5">
-        <h2 class="mb-4">User Registration</h2>
+<div class="container mt-4">
+    <div class="card mx-auto" style="max-width: 500px; background-color: #f8f9fa; margin-top: 5vh;">
+        <div class="card-body p-4">
+            <h2 class="mb-4 text-center">User Registration</h2>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="alert alert-danger">
-                    <ul>
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="alert alert-danger">
+                        <ul>
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('register') }}">
+                {{ form.hidden_tag() }}
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    {{ form.name(class="form-control") }}
+                    {% for error in form.name.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
                 </div>
-            {% endif %}
-        {% endwith %}
 
-        <form method="POST" action="{{ url_for('register') }}">
-            {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    {{ form.email(class="form-control") }}
+                    {% for error in form.email.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-            <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                {{ form.name(class="form-control") }}
-                {% for error in form.name.errors %}
-                    <span class="text-danger">{{ error }}</span>
-                {% endfor %}
-            </div>
+                <div class="mb-3">
+                    <label for="phone_number" class="form-label">Phone Number</label>
+                    {{ form.phone_number(class="form-control") }}
+                    {% for error in form.phone_number.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-            <div class="mb-3">
-                <label for="email" class="form-label">Email address</label>
-                {{ form.email(class="form-control") }}
-                {% for error in form.email.errors %}
-                    <span class="text-danger">{{ error }}</span>
-                {% endfor %}
-            </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    {{ form.address(class="form-control") }}
+                    {% for error in form.address.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-            <div class="mb-3">
-                <label for="phone_number" class="form-label">Phone Number</label>
-                {{ form.phone_number(class="form-control") }}
-                {% for error in form.phone_number.errors %}
-                    <span class="text-danger">{{ error }}</span>
-                {% endfor %}
-            </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    {{ form.password(class="form-control") }}
+                    {% for error in form.password.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-            <div class="mb-3">
-                <label for="address" class="form-label">Address</label>
-                {{ form.address(class="form-control") }}
-                {% for error in form.address.errors %}
-                    <span class="text-danger">{{ error }}</span>
-                {% endfor %}
-            </div>
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    {{ form.confirm_password(class="form-control") }}
+                    {% for error in form.confirm_password.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                {{ form.password(class="form-control") }}
-                {% for error in form.password.errors %}
-                    <span class="text-danger">{{ error }}</span>
-                {% endfor %}
-            </div>
-
-            <div class="mb-3">
-                <label for="confirm_password" class="form-label">Confirm Password</label>
-                {{ form.confirm_password(class="form-control") }}
-                {% for error in form.confirm_password.errors %}
-                    <span class="text-danger">{{ error }}</span>
-                {% endfor %}
-            </div>
-
-            <button type="submit" class="btn btn-primary">Register</button>
-        </form>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
     </div>
+</div>

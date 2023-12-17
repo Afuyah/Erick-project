@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, FloatField, SelectField, SubmitField
+from wtforms import StringField,IntegerField, PasswordField, BooleanField, FloatField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo
 
 class RegistrationForm(FlaskForm):

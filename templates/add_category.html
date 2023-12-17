@@ -1,22 +1,23 @@
 {% include 'navbar.html' %}
-
-
-
+{% include 'sidebar.html' %}
 {% block content %}
-  <div class="container">
-    <h2 class="mt-5">Add Category</h2>
-    <form method="POST" action="{{ url_for('add_category') }}" class="mt-4" id="addCategoryForm">
+
+  <div class="container mt-5">
+    <h2>Add Category</h2>
+    <form method="POST" action="{{ url_for('add_category') }}" class="mt-4">
       {{ form.hidden_tag() }}
+
       <div class="mb-3">
         {{ form.category_name.label(class="form-label") }}
-        {{ form.category_name(class="form-control") }}
+        {{ form.category_name(id="category_name", class="form-control", placeholder="Enter category name", required="required") }}
+        <div class="invalid-feedback">
+          {{ form.category_name.errors[0] if form.category_name.errors else 'Please enter a category name.' }}
+        </div>
       </div>
+
       <div class="mb-3">
         {{ form.submit(class="btn btn-primary") }}
       </div>
     </form>
   </div>
-  <script>
-    // Add any additional JavaScript logic here if needed
-  </script>
 {% endblock %}

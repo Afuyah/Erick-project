@@ -9,9 +9,10 @@ import os
 import secrets
 import smtplib
 from datetime import datetime
-
+from werkzeug.utils import secure_filename
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField,FloatField, SelectField, SubmitField
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import DataRequired
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///grocery_store.db'
@@ -53,15 +54,17 @@ class AddCategoryForm(FlaskForm):
     submit = SubmitField('Add Category')
 
 
-
+# Update the Product model
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     price = db.Column(db.Float, nullable=False)
+    old_price = db.Column(db.Float)  # Include old_price field
     images = db.Column(db.String(500), nullable=True)  # Assuming a comma-separated list of image URLs
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     category = db.relationship('Category', backref=db.backref('products', lazy=True))
+
 
 class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -77,6 +80,28 @@ class Order(db.Model):
     status = db.Column(db.String(20), default='pending')  # New field to track order status
 
 
+def save_image(image):
+    if image:
+        filename = secure_filename(image.filename)
+        image_path = os.path.join('uploads', filename)
+        image.save(image_path)
+        return image_path
+    return None
+  
+
+
+class AddProductForm(FlaskForm):
+    product_name = StringField('Product Name', validators=[DataRequired()])
+    product_description = StringField('Product Description')
+    old_price = FloatField('Old Price')
+    new_price = FloatField('New Price', validators=[DataRequired()])
+    category_id = SelectField('Category', coerce=int, validators=[DataRequired()])
+    cover_image = FileField('Cover Image', validators=[FileRequired(), FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    image1 = FileField('Image 1', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    image2 = FileField('Image 2', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    image3 = FileField('Image 3', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    image4 = FileField('Image 4', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    submit = SubmitField('Add Product')
 
 
 # Create tables
@@ -285,7 +310,7 @@ def all_orders_info1():
     ).all()
 
     return render_template('all_orders_info.html', all_orders_info=all_orders_data)
-  
+
 
 with app.app_context():
   db.create_all()
@@ -384,8 +409,8 @@ def all_orders_info():
     ).all()
 
     return render_template('all_orders_info.html', all_orders_info=all_orders_data)
-  
-  
+
+
 @app.route('/all_admin_users')
 @login_required  # Make sure to protect this route so that only logged-in users can access it
 def all_admin_users():
@@ -400,48 +425,63 @@ def all_admin_users():
     return render_template('all_admin_users.html', admin_users=admin_users_data)
 
 
+from functools import wraps
 
-  # Route for adding a product
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_admin:
+            flash('You do not have permission to add products.', 'error')
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Route for adding a product
 @app.route('/add_product', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def add_product():
-      # Check if the current user is an admin
-      if not current_user.is_admin:
-          flash('You do not have permission to add products.', 'error')
-          return redirect(url_for('dashboard'))
+    # Create an instance of the AddProductForm
+    form = AddProductForm()
 
-      # Create an instance of the AddProductForm
-      form = AddProductForm()
+    # Fetch categories for the product form
+    categories = Category.query.all()
+    form.category_id.choices = [(category.id, category.name) for category in categories]
 
-      # Handle the form submission for adding a product
-      if form.validate_on_submit():
-          # Extract form data (replace with your actual form fields)
-          product_name = form.product_name.data
-          product_description = form.product_description.data
-          product_price = form.product_price.data
-          category_id = form.category_id.data
+    # Handle the form submission for adding a product
+    if form.validate_on_submit():
+        # Extract form data
+        product_name = form.product_name.data
+        product_description = form.product_description.data
+        old_price = form.old_price.data
+        new_price = form.new_price.data
+        category_id = form.category_id.data
 
-          # Create a new product
-          new_product = Product(
-              name=product_name,
-              description=product_description,
-              price=product_price,
-              category_id=category_id
-              # Add other fields as needed
-          )
+        # Handle file uploads
+        cover_image_path = save_image(form.cover_image.data)
+        image1_path = save_image(form.image1.data)
+        image2_path = save_image(form.image2.data)
+        image3_path = save_image(form.image3.data)
+        image4_path = save_image(form.image4.data)
 
-          # Add the product to the database
-          db.session.add(new_product)
-          db.session.commit()
+        # Create a new product
+        new_product = Product(
+            name=product_name,
+            description=product_description,
+            old_price=old_price,
+            price=new_price,
+            category_id=category_id,
+            images=f"{cover_image_path},{image1_path},{image2_path},{image3_path},{image4_path}"
+        )
 
-          flash('Product added successfully!', 'success')
-          return redirect(url_for('dashboard'))  # Adjust the route name as needed
+        # Add the product to the database
+        db.session.add(new_product)
+        db.session.commit()
 
-      # Fetch categories for the product form
-      categories = Category.query.all()
+        flash('Product added successfully!', 'success')
+        return redirect(url_for('dashboard'))
 
-      return render_template('add_product.html', form=form, categories=categories)
-
+    return render_template('add_product.html', form=form, categories=categories)
 
 @app.route('/add_category', methods=['GET', 'POST'])
 @login_required
@@ -466,4 +506,3 @@ def add_category():
 if __name__ == '__main__':
     app.debug = True
     app.run(host='0.0.0.0', port=81)
-   

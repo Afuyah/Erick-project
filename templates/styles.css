@@ -1,0 +1,25 @@
+<body {% if current_user.is_authenticated and current_user.is_admin %}class="admin-logged-in"{% endif %}>
+
+body.admin-logged-in {
+    /* Styles for the admin logged in */
+    /* For example, you can change background color or any other styles */
+    background-color: #f8f9fa;
+}
+
+/* Additional styles for elements within the admin-logged-in class if needed */
+body.admin-logged-in .container {
+    /* Example styles for the container */
+    margin-top: 20px;
+}
+     body.admin-logged-in {
+    /* Styles for the admin logged in */
+    /* For example, you can change background color or any other styles */
+    background-color: #f8f9fa;
+    border: 1px solid #c0c0c0; /* Light grey solid border */
+}
+
+/* Additional styles for elements within the admin-logged-in class if needed */
+body.admin-logged-in .container {
+    /* Example styles for the container */
+    margin-top: 20px;
+}                                                                                         

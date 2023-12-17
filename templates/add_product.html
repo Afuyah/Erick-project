@@ -1,31 +1,46 @@
+{% include 'navbar.html' %}
+{% include 'sidebar.html' %}}
 
 {% block content %}
-  <div class="container">
-    <h2 class="mt-5">Add Product</h2>
-    <form method="POST" action="{{ url_for('add_product') }}" class="mt-4" id="addProductForm">
+  <div class="container mt-4">
+    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
       {{ form.hidden_tag() }}
+
+      {% for field in form %}
+        <div class="mb-3">
+          <label for="{{ field.id }}" class="form-label">{{ field.label.text }}</label>
+          {% if 'image' not in field.name %}
+            {% if field.name == 'category_id' %}
+              <select class="form-select custom-select" required="required" name="{{ field.name }}" id="{{ field.id }}">
+                <option value="" disabled selected>Select a category</option>
+                {% for category in categories %}
+                  <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+              </select>
+            {% else %}
+              {{ field(class="form-control", placeholder=field.label.text, required="required", id="{{ field.id }}") }}
+            {% endif %}
+            <div class="invalid-feedback">
+              {% if field.errors %}
+                {% for error in field.errors %}
+                  {{ error }}
+                {% endfor %}
+              {% else %}
+                Please enter {{ field.label.text.lower() }}.
+              {% endif %}
+            </div>
+          {% else %}
+            <input type="file" class="form-control" id="{{ field.id }}" name="{{ field.name }}" accept="image/*" required>
+            <div class="invalid-feedback">
+              Please choose {{ field.label.text.lower() }}.
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
       <div class="mb-3">
-        {{ form.name.label(class="form-label") }}
-        {{ form.name(class="form-control") }}
-      </div>
-      <div class="mb-3">
-        {{ form.description.label(class="form-label") }}
-        {{ form.description(class="form-control") }}
-      </div>
-      <div class="mb-3">
-        {{ form.price.label(class="form-label") }}
-        {{ form.price(class="form-control") }}
-      </div>
-      <div class="mb-3">
-        {{ form.category_id.label(class="form-label") }}
-        {{ form.category_id(class="form-select") }}
-      </div>
-      <div class="mb-3">
-        {{ form.submit(class="btn btn-primary") }}
+        <button type="submit" class="btn btn-primary">Submit</button>
       </div>
     </form>
   </div>
-  <script>
-    // Add any additional JavaScript logic here if needed
-  </script>
 {% endblock %}
